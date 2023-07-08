@@ -56,17 +56,20 @@ app.use("/img", express.static(path.join(__dirname, "uploads")));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser(process.env.COOKIE_SECRET)); //{connect.sid : 1212421412}
-app.use(
-  session({
-    resave: false,
-    saveUninitialized: false,
-    secret: process.env.COOKIE_SECRET,
-    cookie: {
-      httpOnly: true,
-      secure: false,
-    },
-  })
-);
+const sessionOption = {
+  resave: false,
+  saveUninitialized: false,
+  secret: process.env.COOKIE_SECRET,
+  cookie: {
+    httpOnly: true,
+    secure: false,
+  },
+};
+if (process.env.NODE_ENV === "production") {
+  sessionOption.proxy = true;
+  // sessionOption.cookie.secure = true;
+}
+app.use(session(sessionOption));
 app.use(passport.initialize()); //req.user, req.login, req.isAuthenticate, req.logout
 app.use(passport.session()); //connect.sid라는 이름으로 세션쿠키가 브라우저로 전송
 //브라우저 connect.sid =1241241241;
